@@ -21,17 +21,24 @@ public class GraphViewDemo extends Activity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		/*
 		LineGraphView graphView = new LineGraphView(
 				this
 				, "GraphViewDemo"
 		);
+		*/
+		MinMaxGraphView graphView = new MinMaxGraphView(
+				this
+				, "GraphViewDemo"
+		);
+
 		graphView.addSeries(new GraphViewSeries(new GraphViewData[] {
-				new GraphViewData(1, 2.0d)
-				, new GraphViewData(2, 1.5d)
-				, new GraphViewData(2.5, 3.0d)
-				, new GraphViewData(3, 2.5d)
-				, new GraphViewData(4, 1.0d)
-				, new GraphViewData(5, 3.0d)
+				new GraphViewData(1, 2.0d, 1.9, 2.1) // real value, min deviation, max deviation
+				, new GraphViewData(2, 1.5d, 1.4, 1.6)
+				, new GraphViewData(2.5, 3.0d, 2.9, 3.1)
+				, new GraphViewData(3, 2.5d, 2.4, 2.6)
+				, new GraphViewData(4, 1.0d, 0.9, 1.1)
+				, new GraphViewData(5, 3.0d, 2.9, 3.1)
 		}));
 		setContentView(graphView);
 	}
