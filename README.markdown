@@ -3,22 +3,24 @@ Chart and Graph Library for Android
 
 <h2>What is GraphView</h2>
 GraphView is a library for Android to programmatically create flexible and nice-looking diagramms. It is easy to understand, to integrate and to customize it.
-At the moment there are two different types:
+At the moment there are three different types:
 <ul>
 <li>Line Charts</li>
 <li>Bar Charts</li>
+<li>MinMax data spread Charts</li>
 </ul>
 
 Tested on Android 1.6, 2.2, 2.3 and 3.0 (honeycomb, tablet), 4.0.
 
 <img src="https://github.com/jjoe64/GraphView/raw/master/GVLine.jpg" height="200" />
 <img src="https://github.com/jjoe64/GraphView/raw/master/GVBar.png" height="200" />
+<img src="https://github.com/jjoe64/GraphView/raw/master/GVMinMax.png" height="200" />
 <img src="http://3.bp.blogspot.com/-BkLSSJSeCt8/TkD4xpeRyGI/AAAAAAAAA6M/sVC_1s_Bf-0/s1600/multi2.png" height="200" />
 
 <h2>Features</h2>
 
-* Two chart types
-Line Chart and Bar Chart.
+* Three chart types
+Line Chart,Bar Chart and MinMax Chart
 * Draw multiple series of data
 Let the diagram show more that one series in a graph. You can set a color and a description for every series.
 * Show legend
