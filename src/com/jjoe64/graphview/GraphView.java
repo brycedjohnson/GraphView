@@ -81,7 +81,7 @@ abstract public class GraphView extends LinearLayout {
 			paint.setTextAlign(Align.LEFT);
 			int vers = verlabels.length - 1;
 			for (int i = 0; i < verlabels.length; i++) {
-				paint.setColor(Color.DKGRAY);
+				paint.setColor(gridColor);
 				float y = ((graphheight / vers) * i) + border;
 				canvas.drawLine(horstart, y, width, y, paint);
 			}
@@ -89,7 +89,7 @@ abstract public class GraphView extends LinearLayout {
 			// horizontal labels + lines
 			int hors = horlabels.length - 1;
 			for (int i = 0; i < horlabels.length; i++) {
-				paint.setColor(Color.DKGRAY);
+				paint.setColor(gridColor);
 				float x = ((graphwidth / hors) * i) + horstart;
 				canvas.drawLine(x, height - border, x, border, paint);
 				paint.setTextAlign(Align.CENTER);
@@ -97,7 +97,7 @@ abstract public class GraphView extends LinearLayout {
 					paint.setTextAlign(Align.RIGHT);
 				if (i==0)
 					paint.setTextAlign(Align.LEFT);
-				paint.setColor(Color.WHITE);
+				paint.setColor(labelColor);
 				canvas.drawText(horlabels[i], x, height - 4, paint);
 			}
 
@@ -183,10 +183,14 @@ abstract public class GraphView extends LinearLayout {
 	static public class GraphViewData {
 		public final double valueX;
 		public final double valueY;
-		public GraphViewData(double valueX, double valueY) {
+		public final double minValueY;
+		public final double maxValueY;
+		public GraphViewData(double valueX, double valueY, double minY, double maxY) {
 			super();
 			this.valueX = valueX;
 			this.valueY = valueY;
+			this.minValueY = minY;
+			this.maxValueY = maxY;
 		}
 	}
 
@@ -241,13 +245,15 @@ abstract public class GraphView extends LinearLayout {
 	private ScaleGestureDetector scaleDetector;
 	private boolean scalable;
 	private NumberFormat numberformatter;
-	private final List<GraphViewSeries> graphSeries;
+	protected final List<GraphViewSeries> graphSeries;
 	private boolean showLegend = false;
+	private int gridColor = Color.DKGRAY;
+	private int labelColor = Color.WHITE;
 	private float legendWidth = 120;
 	private LegendAlign legendAlign = LegendAlign.MIDDLE;
-	private boolean manualYAxis;
-	private double manualMaxYValue;
-	private double manualMinYValue;
+	protected boolean manualYAxis;
+	protected double manualMaxYValue;
+	protected double manualMinYValue;
 
 	/**
 	 *
@@ -271,7 +277,7 @@ abstract public class GraphView extends LinearLayout {
 		addView(new GraphViewContentView(context), new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT, 1));
 	}
 
-	private GraphViewData[] _values(int idxSeries) {
+	protected GraphViewData[] _values(int idxSeries) {
 		GraphViewData[] values = graphSeries.get(idxSeries).values;
 		if (viewportStart == 0 && viewportSize == 0) {
 			// all data
@@ -509,6 +515,11 @@ abstract public class GraphView extends LinearLayout {
 		viewVerLabels.invalidate();
 	}
 
+	public void removeAllSeries()
+	{
+		graphSeries.clear();
+	}
+
 	public void removeSeries(GraphViewSeries series)
 	{
 		graphSeries.remove(series);
@@ -618,6 +629,14 @@ abstract public class GraphView extends LinearLayout {
 
 	public void setShowLegend(boolean showLegend) {
 		this.showLegend = showLegend;
+	}
+
+	public void setGridColor(int color) {
+		gridColor = color;
+	}
+
+	public void setLabelColor(int color) {
+		labelColor = color;
 	}
 
 	/**
