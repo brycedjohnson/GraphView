@@ -15,12 +15,12 @@ import android.graphics.Path;
  */
 public class MinMaxGraphView extends GraphView {
 	private final Paint paintBackground;
-	private final int deviationAlpha = 55;
+	private final int deviationAlpha = 120;
 	private boolean drawBackground;
 
 	Canvas canvas;
 	Paint paintDeviation;
-
+	Paint paintMax;
 	public MinMaxGraphView(Context context, String title) {
 		super(context, title);
 
@@ -30,6 +30,9 @@ public class MinMaxGraphView extends GraphView {
 		
 		paintDeviation = new Paint();
 		paintDeviation.setStrokeWidth(4);
+		
+		paintMax = new Paint();
+		paintMax.setStyle(Paint.Style.STROKE);
 	}
 
 	/**
@@ -38,7 +41,7 @@ public class MinMaxGraphView extends GraphView {
 	 * warning: only override this, if you really know want you're doing!
 	 */
 	@Override
-	protected double getMaxY() {
+	public double getMaxY() {
 		double largest;
 		if (manualYAxis) {
 			largest = manualMaxYValue;
@@ -63,7 +66,7 @@ public class MinMaxGraphView extends GraphView {
 	 *
 	 * warning: only override this, if you really know want you're doing!
 	 */
-	protected double getMinY() {
+	public double getMinY() {
 		double smallest;
 		if (manualYAxis) {
 			smallest = manualMinYValue;
@@ -97,7 +100,8 @@ public class MinMaxGraphView extends GraphView {
 
 		paintDeviation.setColor(paint.getColor());
 		paintDeviation.setAlpha(deviationAlpha);
-
+		paintMax.setColor(paint.getColor());
+		
 		if (drawBackground) {
 			float startY = graphheight + border;
 			for (int i = 0; i < values.length; i++) {
@@ -130,13 +134,13 @@ public class MinMaxGraphView extends GraphView {
 				}
 
 				lastEndY = endY;
-				lastEndX = endX;
+				lastEndX = endX;paintDeviation.setStrokeWidth(4);
 			}
 		}
 
 		//draw fill, first point is max value
 		Path path = new Path();
-
+		Path path2 = new Path();
 		lastEndY = 0;
 		lastEndX = 0;
 
@@ -169,9 +173,11 @@ public class MinMaxGraphView extends GraphView {
 			if (i > 0) {
 				if (i == 1) {
 					path.moveTo(startX, devYmax);
+					path2.moveTo(startX, devYmax);
 				}
 				else {
 					path.lineTo(startX, devYmax);
+					path2.lineTo(startX, devYmax);
 				}
 			}
 
@@ -184,6 +190,7 @@ public class MinMaxGraphView extends GraphView {
 			if (i == length-1) {
 				devYmax = (float) (border - lastDevMax) + graphheight;
 				path.lineTo(endX, devYmax);
+
 			}
 		}
 
@@ -233,7 +240,8 @@ public class MinMaxGraphView extends GraphView {
 
 		path.close();
 		canvas.drawPath(path, paintDeviation);
-
+	
+		canvas.drawPath(path2, paintMax);
 
 		// draw data
 		lastEndY = 0;
@@ -242,39 +250,6 @@ public class MinMaxGraphView extends GraphView {
 		lastDevMin = 0;
 		lastDevMax = 0;
 
-		// draw data
-		for (int i = 0; i < length; i++) {
-
-			double valY = values[i].valueY - minY;
-			double ratY = valY / diffY;
-			double y = graphheight * ratY;
-
-			double valX = values[i].valueX - minX;
-			double ratX = valX / diffX;
-			double x = graphwidth * ratX;
-
-			double valYmin = values[i].minValueY - minY;
-			double ratYmin = valYmin / diffY;
-			double yDeviationMin = graphheight * ratYmin;
-
-			double valYmax = values[i].maxValueY - minY;
-			double ratYmax = valYmax / diffY;
-			double yDeviationMax = graphheight * ratYmax;
-
-			float startX = (float) lastEndX + (horstart + 1);
-			float startY = (float) (border - lastEndY) + graphheight;
-			float endX = (float) x + (horstart + 1);
-			float endY = (float) (border - y) + graphheight;
-
-			if (i > 0) {
-				canvas.drawLine(startX, startY, endX, endY, paint);
-			}
-			lastEndY = y;
-			lastEndX = x;
-
-			lastDevMin = yDeviationMin;
-			lastDevMax = yDeviationMax;
-		}
 	}
 
 	public boolean getDrawBackground() {
