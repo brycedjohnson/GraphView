@@ -158,16 +158,17 @@ abstract public class GraphView extends LinearLayout {
 				// if not scaled, scroll
 				if ((event.getAction() & MotionEvent.ACTION_DOWN) == MotionEvent.ACTION_DOWN) {
 					handled = true;
-				}
-				if ((event.getAction() & MotionEvent.ACTION_UP) == MotionEvent.ACTION_UP) {
-					lastTouchEventX = 0;
-					handled = true;
+				
 				}
 				if ((event.getAction() & MotionEvent.ACTION_MOVE) == MotionEvent.ACTION_MOVE) {
-					if (lastTouchEventX != 0) {
-						onMoveGesture(event.getX() - lastTouchEventX);
+					
+					if (event.getHistorySize() != 0) {
+						onMoveGesture(event.getX() - event.getHistoricalX(0));
 					}
-					lastTouchEventX = event.getX();
+					
+					handled = true;
+				}
+				if ((event.getAction() & MotionEvent.ACTION_UP) == MotionEvent.ACTION_UP) {
 					handled = true;
 				}
 				if (handled)
@@ -407,8 +408,8 @@ abstract public class GraphView extends LinearLayout {
 	 * @param ignoreViewport
 	 *
 	 * warning: only override this, if you really know want you're doing!
-	 */
-	protected double getMaxX(boolean ignoreViewport) {
+	 */ 
+	public double getMaxX(boolean ignoreViewport) {
 		// if viewport is set, use this
 		if (!ignoreViewport && viewportSize != 0) {
 			return viewportStart+viewportSize;
@@ -434,7 +435,7 @@ abstract public class GraphView extends LinearLayout {
 	 *
 	 * warning: only override this, if you really know want you're doing!
 	 */
-	protected double getMaxY() {
+	public double getMaxY() {
 		double largest;
 		if (manualYAxis) {
 			largest = manualMaxYValue;
@@ -457,7 +458,7 @@ abstract public class GraphView extends LinearLayout {
 	 *
 	 * warning: only override this, if you really know want you're doing!
 	 */
-	protected double getMinX(boolean ignoreViewport) {
+	public double getMinX(boolean ignoreViewport) {
 		// if viewport is set, use this
 		if (!ignoreViewport && viewportSize != 0) {
 			return viewportStart;
@@ -483,7 +484,7 @@ abstract public class GraphView extends LinearLayout {
 	 *
 	 * warning: only override this, if you really know want you're doing!
 	 */
-	protected double getMinY() {
+	public double getMinY() {
 		double smallest;
 		if (manualYAxis) {
 			smallest = manualMinYValue;

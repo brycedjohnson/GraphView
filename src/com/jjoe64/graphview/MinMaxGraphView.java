@@ -102,7 +102,7 @@ public class MinMaxGraphView extends GraphView {
 		paintDeviation.setAlpha(deviationAlpha);
 		paintMax.setColor(paint.getColor());
 		
-		if (drawBackground) {
+		if (false) {
 			float startY = graphheight + border;
 			for (int i = 0; i < values.length; i++) {
 				double valY = values[i].valueY - minY;
