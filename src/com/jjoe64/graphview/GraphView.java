@@ -90,15 +90,24 @@ abstract public class GraphView extends LinearLayout {
 			double diffX = maxX - minX;
 
 			 // measure bottom text
-			if (labelTextHeight == null || horLabelTextWidth == null) {
+			if (horLabelTextHeight == null || horLabelTextWidth == null) {
 				paint.setTextSize(getGraphViewStyle().getTextSize());
 				double testX = ((getMaxX(true)-getMinX(true))*0.783)+getMinX(true);
 				String testLabel = formatLabel(testX, true);
 				paint.getTextBounds(testLabel, 0, testLabel.length(), textBounds);
-				labelTextHeight = (textBounds.height());
+				horLabelTextHeight = (textBounds.height());
 				horLabelTextWidth = (textBounds.width());
 			}
-			border += labelTextHeight;
+			 // measure bottom text
+			if (verLabelTextHeight == null || verLabelTextWidth == null) {
+				paint.setTextSize(getGraphViewStyle().getTextSize());
+				double testY = ((getMaxY()-getMinY())*0.783)+getMinY();
+				String testLabel = formatLabel(testY, false);
+				paint.getTextBounds(testLabel, 0, testLabel.length(), textBounds);
+				verLabelTextHeight = (textBounds.height());
+				verLabelTextWidth = (textBounds.width());
+			}			
+			border += verLabelTextHeight;
 
 			float graphheight = height - (2 * border);
 			graphwidth = width;
@@ -222,11 +231,20 @@ abstract public class GraphView extends LinearLayout {
 	static public class GraphViewData implements GraphViewDataInterface {
 		public final double valueX;
 		public final double valueY;
+		public final double valueY2;
+		
 		public GraphViewData(double valueX, double valueY) {
 			super();
 			this.valueX = valueX;
 			this.valueY = valueY;
+			this.valueY2 = 0;
 		}
+		public GraphViewData(double valueX, double valueY, double valueY2) {
+			super();
+			this.valueX = valueX;
+			this.valueY = valueY;
+			this.valueY2 = valueY2;
+		}		
 		@Override
 		public double getX() {
 			return valueX;
@@ -235,8 +253,12 @@ abstract public class GraphView extends LinearLayout {
 		public double getY() {
 			return valueY;
 		}
+		@Override
+		public double getY2() {
+			return valueY2;
+		}
 	}
-
+	
 	public enum LegendAlign {
 		TOP, MIDDLE, BOTTOM
 	}
@@ -261,12 +283,12 @@ abstract public class GraphView extends LinearLayout {
 			paint.setStrokeWidth(0);
 
 			 // measure bottom text
-			if (labelTextHeight == null || verLabelTextWidth == null) {
+			if (verLabelTextHeight == null || verLabelTextWidth == null) {
 				paint.setTextSize(getGraphViewStyle().getTextSize());
 				double testY = ((getMaxY()-getMinY())*0.783)+getMinY();
 				String testLabel = formatLabel(testY, false);
 				paint.getTextBounds(testLabel, 0, testLabel.length(), textBounds);
-				labelTextHeight = (textBounds.height());
+				verLabelTextHeight = (textBounds.height());
 				verLabelTextWidth = (textBounds.width());
 			}
 			if (getGraphViewStyle().getVerticalLabelsWidth()==0 && getLayoutParams().width != verLabelTextWidth+GraphViewConfig.BORDER) {
@@ -278,7 +300,7 @@ abstract public class GraphView extends LinearLayout {
 			}
 
 			float border = GraphViewConfig.BORDER;
-			border += labelTextHeight;
+			border += verLabelTextHeight;
 			float height = getHeight();
 			float graphheight = height - (2 * border);
 
@@ -328,7 +350,8 @@ abstract public class GraphView extends LinearLayout {
 	protected GraphViewStyle graphViewStyle;
 	private final GraphViewContentView graphViewContentView;
 	private CustomLabelFormatter customLabelFormatter;
-	private Integer labelTextHeight;
+	private Integer horLabelTextHeight;
+	private Integer verLabelTextHeight;
 	private Integer horLabelTextWidth;
 	private Integer verLabelTextWidth;
 	private final Rect textBounds = new Rect();
@@ -432,7 +455,7 @@ abstract public class GraphView extends LinearLayout {
 		int legendWidth = getGraphViewStyle().getLegendWidth();
 
 		int shapeSize = (int) (textSize*0.8d);
-		Log.d("GraphView", "draw legend size: "+paint.getTextSize());
+		//Log.d("GraphView", "draw legend size: "+paint.getTextSize());
 
 		// rect
 		paint.setARGB(180, 100, 100, 100);
@@ -521,7 +544,7 @@ abstract public class GraphView extends LinearLayout {
 	synchronized private String[] generateVerlabels(float graphheight) {
 		int numLabels = getGraphViewStyle().getNumVerticalLabels()-1;
 		if (numLabels < 0) {
-			numLabels = (int) (graphheight/(labelTextHeight*3));
+			numLabels = (int) (graphheight/(verLabelTextHeight*3));
 			if (numLabels == 0) {
 				Log.w("GraphView", "Height of Graph is smaller than the label text height, so no vertical labels were shown!");
 			}
@@ -585,7 +608,7 @@ abstract public class GraphView extends LinearLayout {
 	 *
 	 * warning: only override this, if you really know want you're doing!
 	 */
-	protected double getMaxX(boolean ignoreViewport) {
+	public double getMaxX(boolean ignoreViewport) {
 		// if viewport is set, use this
 		if (!ignoreViewport && viewportSize != 0) {
 			return viewportStart+viewportSize;
@@ -616,7 +639,7 @@ abstract public class GraphView extends LinearLayout {
 	 *
 	 * warning: only override this, if you really know want you're doing!
 	 */
-	protected double getMaxY() {
+	public double getMaxY() {
 		double largest;
 		if (manualYAxis) {
 			largest = manualMaxYValue;
@@ -639,7 +662,7 @@ abstract public class GraphView extends LinearLayout {
 	 *
 	 * warning: only override this, if you really know want you're doing!
 	 */
-	protected double getMinX(boolean ignoreViewport) {
+	public double getMinX(boolean ignoreViewport) {
 		// if viewport is set, use this
 		if (!ignoreViewport && viewportSize != 0) {
 			return viewportStart;
@@ -670,7 +693,7 @@ abstract public class GraphView extends LinearLayout {
 	 *
 	 * warning: only override this, if you really know want you're doing!
 	 */
-	protected double getMinY() {
+	public double getMinY() {
 		double smallest;
 		if (manualYAxis) {
 			smallest = manualMinYValue;
@@ -707,7 +730,8 @@ abstract public class GraphView extends LinearLayout {
 		if (!staticHorizontalLabels) horlabels = null;
 		numberformatter[0] = null;
 		numberformatter[1] = null;
-		labelTextHeight = null;
+		verLabelTextHeight = null;
+		horLabelTextHeight = null;
 		horLabelTextWidth = null;
 		verLabelTextWidth = null;
 
@@ -792,7 +816,8 @@ abstract public class GraphView extends LinearLayout {
 	 */
 	public void setGraphViewStyle(GraphViewStyle style) {
 		graphViewStyle = style;
-		labelTextHeight = null;
+		verLabelTextHeight = null;
+		horLabelTextHeight = null;
 	}
 
 	/**
